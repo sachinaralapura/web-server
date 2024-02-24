@@ -1,0 +1,12 @@
+{
+    "terminal.integrated.defaultProfile.linux": "fish",
+    "editor.fontSize": 16,
+    "terminal.integrated.fontSize": 14,
+    "editor.scrollbar.verticalScrollbarSize": 8,
+    "editor.scrollbar.horizontalScrollbarSize": 5,
+    "terminal.integrated.cursorStyle": "line",
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+    ],
+    "editor.suggest.showStatusBar": false
+}
