@@ -1,11 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<title>Hello!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sachin A.S - Portfolio</title>
+    <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
-<h1>Hello!</h1>
-<p>Hi from Rust</p>
+    <header>
+        <h1>Sachin A.S</h1>
+        <h2>Software Engineer</h2>
+        <nav>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I am a passionate Software Engineer with experience in various programming languages and frameworks. I am
+                eager to learn and grow, and I am always looking for new challenges.</p>
+            <div class="contact-info">
+                <p>Email: <a href="mailto:sachin.aralapura@gmail.com">sachin.aralapura@gmail.com</a></p>
+                <p>Phone: <a href="dialto:+91 7019928531">+91 7019928531</a></p>
+                <p>Location: Bengaluru, Karnataka</p>
+            </div>
+        </section>
+
+        <section id="skills">
+            <h2>Skills</h2>
+            <ul class="skills-list">
+                <li>Programming Languages: C++, Python, Rust, Node.js</li>
+                <li>Libraries/Frameworks: React.js, Flask</li>
+                <li>Tools/Platforms: Git, Linux, VSCode, Android Studio</li>
+                <li>Databases: SQL, MongoDB</li>
+            </ul>
+        </section>
+
+        <section id="projects">
+            <h2>Projects</h2>
+            <ul class="projects-list">
+                <li>
+                    <h3>Financial Management System</h3>
+                    <a href="https://github.com/sachinaralapura/Financial-management-system.git">Link</a>
+                    <p>Description of the project and its features.</p>
+                </li>
+                <li>
+                    <h3>React Quiz</h3>
+                    <a href="https://github.com/sachinaralapura/React-quiz.git">Link</a>
+                    <p>Description of the project and its features.</p>
+                </li>
+                <li>
+                    <h3>Real Estate Website</h3>
+                    <a href="https://github.com/sachinaralapura/RealEstate-template">Link</a>
+                    <p>Description of the project and its features.</p>
+                </li>
+            </ul>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <div>
+                <ul>
+                    <li><a href="https://www.linkedin.com/in/sachin-as-25692320a/">Linkedin</a></li>
+                    <li><a href="https://github.com/sachinaralapura">github</a></li>
+                    <li><a href="https://www.hackerrank.com/sachin_aralapura">HackerRank</a></li>
+                </ul>
+            </div>
+            <form action="#">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Sachin A.S.</p>
+    </footer>
+
 </body>
+
 </html>
