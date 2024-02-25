@@ -2,33 +2,43 @@ use std::fs;
 use std::io::prelude::*;
 use std::net::TcpStream;
 
+use toml::Value;
+
+pub struct ThreadPool;
+
 pub fn handle_connection(mut stream: TcpStream) {
     let mut buffer: [u8; 512] = [0; 512];
     stream.read(&mut buffer).unwrap();
     println!("Request : {} ", String::from_utf8_lossy(&buffer[..]));
 
-    // ------------------------------- base route ---------------------------------------------
+    // ------------------------------- base route -----------------------------------------
 
     let get_base: &[u8; 16] = b"GET / HTTP/1.1\r\n";
     let get_base_css: &[u8; 25] = b"GET /index.css HTTP/1.1\r\n";
+    // let sleep = b"GET /sleep HTTP/1.1\r\n";
+
     // html
     let (status_line, filename) = if buffer.starts_with(get_base) {
-        ("HTTP/1.1 200 OK\r\n\r\n", "index.html")
+        ("HTTP/1.1 200 OK\r\n\r\n", "static/index.html")
     }
     //css
     else if buffer.starts_with(get_base_css) {
-        ("", "index.css")
+        ("", "static/index.css")
     }
+    // else if buffer.starts_with(sleep) {
+    //     thread::sleep(Duration::from_secs(3));
+    //     ("HTTP/1.1 200 OK\r\n\r\n", "static/index.html")
+    // }
     //error
     else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "error.html")
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "static/error.html")
     };
 
     let send_contents = format!("{}{}", status_line, read_file(filename.to_string()));
     write_flush(stream, send_contents);
 }
 
-// --------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 
 fn write_flush(mut stream: TcpStream, send_contents: String) {
     println!("------------------- attempt to send response ------------------------");
@@ -60,9 +70,28 @@ fn read_file(file_name: String) -> String {
     }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
 
 fn handle_error() -> String {
     let error_html = fs::read_to_string("error.html").unwrap();
     error_html
+}
+
+//---------------------------------------------------------------------------------------
+
+pub fn read_config() -> (String, String) {
+    // Read the contents of the config.toml file
+    let config_content: String =
+        fs::read_to_string("config.toml").expect("Failed to read config.toml");
+
+    // Parse the TOML content into a TOML value
+    let config: Value = config_content.parse().expect("Failed to parse config.toml");
+    // Extract the server address from the config
+    let server_address: &str = config["server"]["address"]
+        .as_str()
+        .expect("Server address not found in config.toml");
+    let threads: &str = config["server"]["threads"]
+        .as_str()
+        .expect("threads not found");
+    (server_address.to_string(), threads.to_string())
 }
