@@ -1,10 +1,75 @@
-use std::fs;
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::sync::{mpsc, Arc, Mutex};
+use std::{fs, thread};
 
 use toml::Value;
 
-pub struct ThreadPool;
+trait FnBox {
+    fn call_box(self: Box<Self>);
+}
+
+impl<F: FnOnce()> FnBox for F {
+    fn call_box(self: Box<Self>) {
+        (*self)()
+    }
+}
+
+type Job = Box<dyn FnBox + Send + 'static>;
+/// A data structure between ThreadPool and the threads
+struct Worker {
+    id: usize,
+    thread: thread::JoinHandle<()>,
+}
+
+impl Worker {
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+        let thread: thread::JoinHandle<()> = thread::spawn(move || loop {
+            let job = receiver.lock().unwrap().recv().unwrap();
+            println!("Worker {} got a job; executing.", id);
+            job.call_box();
+        });
+
+        Worker { id, thread }
+    }
+}
+
+pub struct ThreadPool {
+    workers: Vec<Worker>,
+    sender: mpsc::Sender<Job>,
+}
+
+impl ThreadPool {
+    /// Create a new ThreadPool.
+    ///
+    /// The size is the number of threads in the pool.
+    ///
+    /// # Panics
+    ///
+    /// The `new` function will panic if the size is zero or < zero.
+    pub fn new(size: usize) -> ThreadPool {
+        assert!(size > 0);
+
+        let mut workers: Vec<Worker> = Vec::with_capacity(size);
+        let (sender, receiver) = mpsc::channel();
+
+        let receiver: Arc<Mutex<mpsc::Receiver<Job>>> = Arc::new(Mutex::new(receiver));
+
+        for id in 0..size {
+            workers.push(Worker::new(id, Arc::clone(&receiver)));
+        }
+
+        ThreadPool { workers, sender }
+    }
+
+    pub fn execute<F>(&self, f: F)
+    where
+        F: FnOnce() + Send + 'static,
+    {
+        let job: Box<F> = Box::new(f);
+        self.sender.send(job).unwrap();
+    }
+}
 
 pub fn handle_connection(mut stream: TcpStream) {
     let mut buffer: [u8; 512] = [0; 512];
@@ -79,7 +144,7 @@ fn handle_error() -> String {
 
 //---------------------------------------------------------------------------------------
 
-pub fn read_config() -> (String, String) {
+pub fn read_config() -> (String, usize) {
     // Read the contents of the config.toml file
     let config_content: String =
         fs::read_to_string("config.toml").expect("Failed to read config.toml");
@@ -90,8 +155,8 @@ pub fn read_config() -> (String, String) {
     let server_address: &str = config["server"]["address"]
         .as_str()
         .expect("Server address not found in config.toml");
-    let threads: &str = config["server"]["threads"]
-        .as_str()
+    let threads = config["server"]["threads"]
+        .as_integer()
         .expect("threads not found");
-    (server_address.to_string(), threads.to_string())
+    (server_address.to_string(), threads as usize)
 }
